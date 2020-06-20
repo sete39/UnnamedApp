@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:unnamed_app_project/Account_page/login_page.dart';
+import 'package:unnamed_app_project/account_view/login_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage();
@@ -62,7 +62,12 @@ class _MainPageState extends State<MainPage> {
     return Scaffold(
       appBar: AppBar(
         leading: Icon(Icons.menu),
-        title: Text(_appBarTitleText),
+        title: Text(
+          _appBarTitleText,
+          style: TextStyle(
+            fontFamily: 'Raleway'
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
