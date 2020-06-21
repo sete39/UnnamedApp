@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:unnamed_app_project/account_view/login_page.dart';
+import 'package:unnamed_app_project/search_page/search_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage();
@@ -25,13 +26,13 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    const searchColor = Colors.black;
+    const double width = 346.0;
+    const double height = 50.0;
     const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
     const List<Widget> _widgetOptions = <Widget>[
-      LoginPage(),
-      Text(
-        'Index 1: Business',
-        style: optionStyle,
-      ),
+      LoginPage(width: width, height: height),
+      SearchPage(searchColor, width: width, height: height),
       Text(
         'Index 2: School',
         style: optionStyle,

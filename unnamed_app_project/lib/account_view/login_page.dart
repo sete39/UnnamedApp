@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_auth_buttons/flutter_auth_buttons.dart';
 
 class LoginPage extends StatelessWidget {
-  const LoginPage();
+  final double width;
+  final double height;
+  const LoginPage({this.width = 346, this.height = 50});
   @override
   Widget build(BuildContext context) {
     final googleSignInButton = RaisedButton.icon(
       icon: Container(
-        // width: 500,
-        // height: 400,
         child: Image.asset("assets/images/google_logo.png"),
       ),
       padding: EdgeInsets.fromLTRB(0, 13, 0, 13),
@@ -54,14 +53,14 @@ class LoginPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 346,
-            height: 50,
+            width: width,
+            height: height,
             child: googleSignInButton,
           ),
           Padding(padding: EdgeInsets.all(8)),
           Container(
-            width: 346,
-            height: 50,
+            width: width,
+            height: height,
             child: twitterSignInButton,
           ),
         ],
