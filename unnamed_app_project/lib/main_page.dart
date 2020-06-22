@@ -10,8 +10,11 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  String _hintText = 'Enter Summoner Name';
+  List<String> _serverList = ['EUW', 'EUNE', 'NA'];
   int _selectedIndex = 0;
   String _appBarTitleText = 'Accounts';
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -30,9 +33,13 @@ class _MainPageState extends State<MainPage> {
     const double width = 346.0;
     const double height = 50.0;
     const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
-    const List<Widget> _widgetOptions = <Widget>[
+    const TextStyle searchPageTextStyle = TextStyle(
+                  color: Color.fromRGBO(255, 255, 255, 1),
+                  fontFamily: 'Raleway',
+                );
+    List<Widget> _widgetOptions = <Widget>[
       LoginPage(width: width, height: height),
-      SearchPage(searchColor, width: width, height: height),
+      SearchPage(searchColor, width: width, height: height, textStyle: searchPageTextStyle, hintText: _hintText, serverList: _serverList,),
       Text(
         'Index 2: School',
         style: optionStyle,
