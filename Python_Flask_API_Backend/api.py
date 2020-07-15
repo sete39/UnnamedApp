@@ -4,7 +4,7 @@ import pickle
 from riotwatcher import LolWatcher, TftWatcher, ApiError
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
-RIOTAPIKEY = 'RGAPI-6ada281d-aa04-4bc2-a99f-c4ba21f74570'
+RIOTAPIKEY = 'RGAPI-0d70be1a-d479-4a39-b507-793f77eb4d23'
 lol_watcher = LolWatcher(RIOTAPIKEY)
 tft_watcher = TftWatcher(RIOTAPIKEY)
 serverMap = {
@@ -19,9 +19,13 @@ def changeSummonerInfo(summoner, summonerRankedInfo):
     summoner['profileIconURL'] = profileIconURL
     for key in ['accountId', 'id', 'profileIconId', 'puuid', 'revisionDate']:
         summoner.pop(key)
+    summoner['rankedInfo'] = []
+    summoner['rankedLP'] = []
+    summoner['rankedType'] = []
     for i in range(len(summonerRankedInfo)):
-        summoner['rankedInfo' + str(i)] = summonerRankedInfo[i]['tier'] + summonerRankedInfo[i]['rank']
-        summoner['rankedType' + str(i)] = summonerRankedInfo[i]['queueType']
+        summoner['rankedInfo'].append(summonerRankedInfo[i]['tier'].title() + ' ' + summonerRankedInfo[i]['rank'])
+        summoner['rankedLP'].append(summonerRankedInfo[i]['leaguePoints'])
+        summoner['rankedType'].append(summonerRankedInfo[i]['queueType'])
     return summoner
 
 def getTftChampIcon(characterId):

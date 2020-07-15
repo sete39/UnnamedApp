@@ -1,7 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:unnamed_app_project/objects/summoner_info.dart';
+import 'package:unnamed_app_project/search_page/summoner_info_widget.dart';
 import 'package:unnamed_app_project/account_view/login_page.dart';
 import 'package:unnamed_app_project/search_page/search_page.dart';
+import 'dart:convert';
 
 class MainPage extends StatefulWidget {
   const MainPage();
@@ -14,6 +17,7 @@ class _MainPageState extends State<MainPage> {
   List<String> _serverList = ['EUW', 'EUNE', 'NA'];
   int _selectedIndex = 0;
   String _appBarTitleText = 'Accounts';
+  SummonerInfo _summonerInfo;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -22,30 +26,45 @@ class _MainPageState extends State<MainPage> {
         _appBarTitleText = 'Accounts';
       else if (_selectedIndex == 1)
         _appBarTitleText = 'League of Legends';
-      else if (_selectedIndex == 2)
-        _appBarTitleText = 'Favorites';
+      else if (_selectedIndex == 2) _appBarTitleText = 'Favorites';
+    });
+  }
+
+  Future<void> _readJson(String path) async {
+    final json = DefaultAssetBundle.of(context).loadString(path);
+    final summonerInfoMap = jsonDecode(await json);
+    final summonerInfo = SummonerInfo.fromJson(summonerInfoMap);
+    setState(() {
+      _summonerInfo = summonerInfo;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    const searchColor = Colors.black;
+    _readJson('assets/examplesTFT/tft.json');
+    final searchColor = Theme.of(context).primaryColor;
     const double width = 346.0;
     const double height = 50.0;
-    const TextStyle optionStyle = TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
+    const TextStyle optionStyle =
+        TextStyle(fontSize: 30, fontWeight: FontWeight.bold);
     const TextStyle searchPageTextStyle = TextStyle(
-                  color: Color.fromRGBO(255, 255, 255, 1),
-                  fontFamily: 'Raleway',
-                );
+      color: Color.fromRGBO(255, 255, 255, 1),
+      fontFamily: 'Raleway',
+    );
     List<Widget> _widgetOptions = <Widget>[
       LoginPage(width: width, height: height),
-      SearchPage(searchColor, width: width, height: height, textStyle: searchPageTextStyle, hintText: _hintText, serverList: _serverList,),
-      Text(
-        'Index 2: School',
-        style: optionStyle,
+      SearchPage(
+        searchColor,
+        width: width,
+        height: height,
+        textStyle: searchPageTextStyle,
+        hintText: _hintText,
+        serverList: _serverList,
       ),
+      SummonerInfoWidget(
+          game: null, summonerInfo: _summonerInfo, font: 'Raleway'),
     ];
-    
+
     final navBar = BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
         BottomNavigationBarItem(
@@ -72,18 +91,15 @@ class _MainPageState extends State<MainPage> {
         leading: Icon(Icons.menu),
         title: Text(
           _appBarTitleText,
-          style: TextStyle(
-            fontFamily: 'Raleway'
-          ),
+          style: TextStyle(fontFamily: 'Raleway'),
         ),
         centerTitle: true,
         backgroundColor: Colors.black,
       ),
       bottomNavigationBar: navBar,
-      body: Center( 
+      body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
-        ),
-      
+      ),
     );
   }
 }
