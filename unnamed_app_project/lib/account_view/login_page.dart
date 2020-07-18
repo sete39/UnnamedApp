@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   final double width;
   final double height;
   const LoginPage({this.width = 346, this.height = 50});
+  @override
+  _LoginPageState createState() => _LoginPageState(
+        width: width,
+        height: height,
+      );
+}
+
+class _LoginPageState extends State<LoginPage> {
+  final double width;
+  final double height;
+  _LoginPageState({this.width = 346, this.height = 50});
   @override
   Widget build(BuildContext context) {
     final googleSignInButton = RaisedButton.icon(

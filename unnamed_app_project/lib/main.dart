@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import './main_page.dart';
+
 void main() {
   runApp(MyApp());
 }
@@ -10,8 +11,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(primaryColor: Colors.black),
-      home: MainPage()
+      theme: ThemeData(primaryColor: Colors.black, accentColor: Colors.black),
+      home: MainPage(),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

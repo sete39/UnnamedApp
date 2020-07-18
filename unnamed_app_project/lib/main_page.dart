@@ -4,7 +4,8 @@ import 'package:unnamed_app_project/objects/summoner_info.dart';
 import 'package:unnamed_app_project/search_page/summoner_info_widget.dart';
 import 'package:unnamed_app_project/account_view/login_page.dart';
 import 'package:unnamed_app_project/search_page/search_page.dart';
-import 'dart:convert';
+import 'dart:convert' show json, utf8, jsonDecode;
+import 'dart:io';
 
 class MainPage extends StatefulWidget {
   const MainPage();
@@ -13,6 +14,7 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  final _httpClient = HttpClient();
   String _hintText = 'Enter Summoner Name';
   List<String> _serverList = ['EUW', 'EUNE', 'NA'];
   int _selectedIndex = 0;
@@ -30,18 +32,27 @@ class _MainPageState extends State<MainPage> {
     });
   }
 
-  Future<void> _readJson(String path) async {
-    final json = DefaultAssetBundle.of(context).loadString(path);
-    final summonerInfoMap = jsonDecode(await json);
+  Future<int> _readJson(String path) async {
+    // final json = DefaultAssetBundle.of(context).loadString(path);
+    print('sending request');
+    final uri = Uri.http('10.0.2.2:5000', '/v1/tft',
+        {'name': 'HornyModeKurumx', 'region': 'na1'});
+    print(uri);
+    final httpRequest = await _httpClient.getUrl(uri);
+    final httpResponse = await httpRequest.close();
+    print('got json' + HttpStatus.ok.toString());
+    final responseBody = await httpResponse.transform(utf8.decoder).join();
+    final jsonBody = json.decode(responseBody);
+    final summonerInfoMap = Map<String, dynamic>.from(await jsonBody);
     final summonerInfo = SummonerInfo.fromJson(summonerInfoMap);
     setState(() {
       _summonerInfo = summonerInfo;
     });
+    return 1;
   }
 
   @override
   Widget build(BuildContext context) {
-    _readJson('assets/examplesTFT/tft.json');
     final searchColor = Theme.of(context).primaryColor;
     const double width = 346.0;
     const double height = 50.0;
@@ -61,8 +72,7 @@ class _MainPageState extends State<MainPage> {
         hintText: _hintText,
         serverList: _serverList,
       ),
-      SummonerInfoWidget(
-          game: null, summonerInfo: _summonerInfo, font: 'Raleway'),
+      Text('test'),
     ];
 
     final navBar = BottomNavigationBar(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:unnamed_app_project/objects/summoner_info.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class SummonerInfoWidget extends StatelessWidget {
   final SummonerInfo summonerInfo;
@@ -11,25 +12,98 @@ class SummonerInfoWidget extends StatelessWidget {
       this.font = 'Raleway'});
   @override
   Widget build(BuildContext context) {
+    String _winRate = summonerInfo.past20top1WR.toStringAsFixed(1);
+    String _top4winRate = summonerInfo.past20top4WR.toStringAsFixed(1);
+    Color _wrColor, _top4wrColor;
+    summonerInfo.past20top1WR > 12.5
+        ? _wrColor = Colors.green[600]
+        : _wrColor = Colors.red[600];
+    summonerInfo.past20top4WR > 50
+        ? _top4wrColor = Colors.green[600]
+        : _top4wrColor = Colors.red[600];
+    if (summonerInfo.isRanked)
+      final totalGames =
+          summonerInfo.summonerRankLosses[0] + summonerInfo.summonerRankWins[0];
+    else
+      final totalGames = 0;
+
     TextStyle playerMainTextStyle =
-        TextStyle(fontFamily: font, color: Colors.white, fontSize: 16);
+        TextStyle(fontFamily: font, color: Colors.white, fontSize: 14);
     final Column _playerTextInfo = Column(children: [
-      FittedBox(
-        fit: BoxFit.fitWidth,
-        child: Row(
-          children: [
-            Text(
+      Row(
+        children: [
+          Container(
+            width: 129,
+            child: AutoSizeText(
               summonerInfo.summonerName,
               style: playerMainTextStyle,
+              maxLines: 1,
+              minFontSize: 13,
             ),
-            Padding(padding: EdgeInsets.fromLTRB(15, 0, 0, 0)),
-            Text(
-              summonerInfo.summonerRankInfo[0],
+          ),
+          Padding(padding: EdgeInsets.fromLTRB(5, 0, 0, 0)),
+          Container(
+            width: 82,
+            child: AutoSizeText(
+              summonerInfo.isRanked
+                  ? summonerInfo.summonerRankInfo[0]
+                  : 'Level ' + summonerInfo.summonerLevel.toString(),
               style: playerMainTextStyle,
+              maxLines: 1,
+              minFontSize: 13,
             ),
-          ],
-        ),
-      )
+          ),
+          Padding(padding: EdgeInsets.fromLTRB(0, 0, 5, 0))
+        ],
+      ),
+      Padding(
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+      ),
+      Container(
+          alignment: Alignment.centerLeft,
+          width: 221,
+          padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+          child: RichText(
+              text: TextSpan(
+                  text: 'Top 1 WR: ',
+                  style: playerMainTextStyle,
+                  children: <TextSpan>[
+                TextSpan(
+                  text: '$_winRate%',
+                  style: TextStyle(
+                      fontFamily: font,
+                      color: _wrColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: ' (20 Games)',
+                  style: playerMainTextStyle,
+                ),
+              ]))),
+      Padding(
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+      ),
+      Container(
+          alignment: Alignment.centerLeft,
+          width: 221,
+          padding: EdgeInsets.fromLTRB(0, 0, 5, 0),
+          child: RichText(
+              text: TextSpan(
+                  text: 'Top 4 WR: ',
+                  style: playerMainTextStyle,
+                  children: <TextSpan>[
+                TextSpan(
+                  text: '$_top4winRate%',
+                  style: TextStyle(
+                      fontFamily: font,
+                      color: _top4wrColor,
+                      fontWeight: FontWeight.bold),
+                ),
+                TextSpan(
+                  text: ' (20 Games)',
+                  style: playerMainTextStyle,
+                ),
+              ])))
     ]);
     print(summonerInfo.profileIconURL);
     final _playerInfo = ClipRRect(

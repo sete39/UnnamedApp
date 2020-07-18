@@ -4,15 +4,20 @@ import pickle
 from riotwatcher import LolWatcher, TftWatcher, ApiError
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
-RIOTAPIKEY = 'RGAPI-0d70be1a-d479-4a39-b507-793f77eb4d23'
+RIOTAPIKEY = 'RGAPI-7068ba44-f3c6-48ea-8e1e-13efcc419c59'
 lol_watcher = LolWatcher(RIOTAPIKEY)
 tft_watcher = TftWatcher(RIOTAPIKEY)
+initialServerMap = {
+    'EUW': 'euw1',
+    'EUNE': 'eun1',
+    'NA': 'na1'
+}
 serverMap = {
     'euw1': 'europe',
     'eun1': 'europe',
     'na1': 'AMERICAS',
 }
-PATCHVERSION = '10.12.1'
+PATCHVERSION = '10.14.1' 
 
 def changeSummonerInfo(summoner, summonerRankedInfo):
     profileIconURL = 'https://cdn.communitydragon.org/' + PATCHVERSION + '/profile-icon/' + str(summoner['profileIconId'])
@@ -22,12 +27,51 @@ def changeSummonerInfo(summoner, summonerRankedInfo):
     summoner['rankedInfo'] = []
     summoner['rankedLP'] = []
     summoner['rankedType'] = []
+    summoner['rankedWinRate'] = []
+    summoner['rankedWins'] = []
+    summoner['rankedLosses'] = []
     for i in range(len(summonerRankedInfo)):
         summoner['rankedInfo'].append(summonerRankedInfo[i]['tier'].title() + ' ' + summonerRankedInfo[i]['rank'])
         summoner['rankedLP'].append(summonerRankedInfo[i]['leaguePoints'])
         summoner['rankedType'].append(summonerRankedInfo[i]['queueType'])
+        wins = summonerRankedInfo[i]['wins']
+        losses = summonerRankedInfo[i]['losses']
+        winRate = wins / losses * 100
+        summoner['rankedWins'].append(wins)
+        summoner['rankedLosses'].append(losses)
+        summoner['rankedWinRate'].append(winRate)
+    if (len(summonerRankedInfo) == 0):
+        summoner['isRanked'] = False
+    else:
+        summoner['isRanked'] = True
     return summoner
 
+# gets top 1 and top 4 winrates of the past 20 games in TFT
+def getTftPast20GamesWinRates(summoner, matchList):
+    top4wins = 0
+    top1wins = 0
+    top4losses = 0
+    top1losses = 0
+    puuid = summoner['puuid']
+    for match in matchList:
+        for i in range(8):
+            if (match['metadata']['participant' + str(i)]['puuid'] == puuid):
+                participant = match['metadata']['participant' + str(i)]
+                if (participant['placement'] == 1):
+                    top1wins += 1
+                    top4wins += 1
+                elif (participant['placement'] <= 4):
+                    top4wins += 1
+                    top1losses +=1
+                else:
+                    top1losses += 1
+                    top4losses += 1
+                break
+    top4WR = top4wins / (top4wins + top4losses) * 100
+    top1WR = top1wins / (top1wins + top1losses) * 100
+    summoner['top4WR'] = top4WR
+    summoner['top1WR'] = top1WR
+    return summoner
 def getTftChampIcon(characterId):
     return 0
 
@@ -52,6 +96,8 @@ def api_tft_stats():
         region = flask.request.args['region']
     else:
         return "Error: no name field provided. Please specify a name."
+    print('processing request')
+    region = initialServerMap[region]
     summoner = tft_watcher.summoner.by_name(region, name)
     summonerRankedInfo = tft_watcher.league.by_summoner(region, summoner['id'])
     summonerMatchesID = tft_watcher.match.by_puuid(serverMap[region], summoner['puuid'])
@@ -65,12 +111,14 @@ def api_tft_stats():
         matchList[i]['info'].pop('participants')
         matchList[i]['metadata'].update(matchList[i]['info'])
         matchList[i].pop('info')
+    summoner = getTftPast20GamesWinRates(summoner, matchList)
     summoner = changeSummonerInfo(summoner, summonerRankedInfo)
     combinedDict = { # combining the match list and the summoner info into one dictionary
         'matchList': matchList,
         'summonerInfo': summoner
     }
     json = flask.jsonify(combinedDict)
+    print('finished processing')
     return json
 
-app.run() 
+app.run(host='10.0.1.42', port=5000) 
