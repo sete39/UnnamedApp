@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:unnamed_app_project/objects/user.dart';
 
 class LoginPage extends StatefulWidget {
   final double width;
@@ -14,9 +15,41 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final double width;
   final double height;
+  bool _loggedIn = false, _buttonPressed = false, _completedFuture = false;
+  User user;
+
+  Future<int> _handleSignIn() async {
+    if (_completedFuture) return 1;
+    final tempUser = await User.handleGoogleSignIn();
+    setState(() {
+      user = tempUser;
+      _completedFuture = true;
+      _loggedIn = true;
+    });
+    return 1;
+  }
+
+  Future<bool> _checkIfLoggedIn() async {
+    if (_completedFuture || _loggedIn) return true;
+    final tempUser = await User.checkIfLoggedIn();
+    if (tempUser != null) {
+      setState(() {
+        user = tempUser;
+        _completedFuture = true;
+        _loggedIn = true;
+      });
+      return true;
+    } else
+      return false;
+  }
+
+  Future<void> storeGoogleAccountTokens(
+      String idToken, String accessToken) async {}
   _LoginPageState({this.width = 346, this.height = 50});
+
   @override
   Widget build(BuildContext context) {
+    Future checkingLogin = _checkIfLoggedIn();
     final googleSignInButton = RaisedButton.icon(
       icon: Container(
         child: Image.asset("assets/images/google_logo.png"),
@@ -32,7 +65,11 @@ class _LoginPageState extends State<LoginPage> {
               fontSize: 14,
             )),
       ),
-      onPressed: () {},
+      onPressed: () {
+        setState(() {
+          _buttonPressed = true;
+        });
+      },
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
@@ -58,7 +95,8 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(10.0),
       ),
     );
-    return Center(
+
+    final _notLoggedInWidget = Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -77,5 +115,32 @@ class _LoginPageState extends State<LoginPage> {
         ],
       ),
     );
+
+    if (_buttonPressed) {
+      final futureBuilder = FutureBuilder(
+        future: _handleSignIn(),
+        builder: (context, snapshot) {
+          Widget _displayedWidget;
+          if (snapshot.hasData) {
+            print(user.firebaseUser);
+            _displayedWidget =
+                Text("You are logged in to " + user.firebaseUser.displayName);
+            return _displayedWidget;
+          }
+          _displayedWidget = SizedBox(
+            width: 60,
+            height: 60,
+            child: CircularProgressIndicator(),
+          );
+
+          return _displayedWidget;
+        },
+      );
+      return futureBuilder;
+    } else {
+      if (_loggedIn)
+        return Text("You are logged in as " + user.firebaseUser.displayName);
+      return _notLoggedInWidget;
+    }
   }
 }

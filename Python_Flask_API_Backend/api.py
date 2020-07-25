@@ -4,7 +4,7 @@ import pickle
 from riotwatcher import LolWatcher, TftWatcher, ApiError
 app = flask.Flask(__name__)
 app.config['DEBUG'] = True
-RIOTAPIKEY = 'RGAPI-7068ba44-f3c6-48ea-8e1e-13efcc419c59'
+RIOTAPIKEY = 'RGAPI-206cd1d6-741a-4c24-bc8a-94dd66194861'
 lol_watcher = LolWatcher(RIOTAPIKEY)
 tft_watcher = TftWatcher(RIOTAPIKEY)
 initialServerMap = {
@@ -17,7 +17,7 @@ serverMap = {
     'eun1': 'europe',
     'na1': 'AMERICAS',
 }
-PATCHVERSION = '10.14.1' 
+PATCHVERSION = '10.15.1' 
 
 def changeSummonerInfo(summoner, summonerRankedInfo):
     profileIconURL = 'https://cdn.communitydragon.org/' + PATCHVERSION + '/profile-icon/' + str(summoner['profileIconId'])

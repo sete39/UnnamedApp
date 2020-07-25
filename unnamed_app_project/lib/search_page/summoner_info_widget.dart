@@ -121,7 +121,38 @@ class SummonerInfoWidget extends StatelessWidget {
             _playerTextInfo,
           ],
         ));
-    final Row _rankedInfo = Row(children: []);
+    final _rankedInfo = summonerInfo.isRanked
+        ? Container(
+            height: 121,
+            width: 325,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color: Color(0xFF121212),
+            ),
+            child: Column(children: [
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                Container(
+                  child: Text(
+                    'Ranked',
+                    textAlign: TextAlign.left,
+                    style: playerMainTextStyle,
+                  ),
+                  padding: EdgeInsets.fromLTRB(13, 18, 5, 0),
+                ),
+                Container(
+                  child: Text(
+                    summonerInfo.summonerRankInfo[0] +
+                        ' ' +
+                        summonerInfo.summonerRankLP[0].toString() +
+                        ' LP',
+                    textAlign: TextAlign.left,
+                    style: playerMainTextStyle,
+                  ),
+                  padding: EdgeInsets.fromLTRB(10, 18, 13, 0),
+                ),
+              ])
+            ]))
+        : Container();
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(10)),
@@ -130,7 +161,11 @@ class SummonerInfoWidget extends StatelessWidget {
       height: 275,
       width: 346,
       child: Column(
-        children: [_playerInfo],
+        children: [
+          _playerInfo,
+          Padding(padding: EdgeInsets.fromLTRB(0, 20, 0, 0)),
+          _rankedInfo,
+        ],
       ),
     );
   }

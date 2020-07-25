@@ -27,8 +27,8 @@ if __name__ == '__main__':
         if loop:
             print('in loop')
             ms.press(mouse.Button.left)
-            time.sleep(0.0100)
+            #time.sleep(0.0100)
             ms.release(mouse.Button.left)
-            time.sleep(1)
+            #time.sleep(1)
         # print('out of loop')
         time.sleep(0.01)
