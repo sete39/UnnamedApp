@@ -1,0 +1,4 @@
+flask
+riotwatcher
+gunicorn
+flask-limiter

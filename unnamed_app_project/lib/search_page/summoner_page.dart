@@ -29,8 +29,8 @@ class _SummonerPageState extends State<SummonerPage> {
     }
     try {
       print('sending request');
-      final uri = Uri.http('10.0.1.42:5000', '/v1/tft',
-          {'name': summonerName, 'region': region});
+      final uri = Uri.http('unnamedappproject-284416.oa.r.appspot.com',
+          '/v1/tft', {'name': summonerName, 'region': region});
       print(uri);
       final httpRequest = await _httpClient.getUrl(uri);
       final httpResponse = await httpRequest.close();

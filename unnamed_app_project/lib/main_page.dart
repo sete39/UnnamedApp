@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:unnamed_app_project/objects/summoner_info.dart';
-import 'package:unnamed_app_project/search_page/summoner_info_widget.dart';
+import 'package:unnamed_app_project/objects/user.dart';
 import 'package:unnamed_app_project/account_view/login_page.dart';
 import 'package:unnamed_app_project/search_page/search_page.dart';
-import 'dart:convert' show json, utf8, jsonDecode;
-import 'dart:io';
 
 class MainPage extends StatefulWidget {
   const MainPage();
@@ -14,12 +11,17 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  final _httpClient = HttpClient();
   String _hintText = 'Enter Summoner Name';
   List<String> _serverList = ['EUW', 'EUNE', 'NA'];
   int _selectedIndex = 0;
   String _appBarTitleText = 'Accounts';
-  SummonerInfo _summonerInfo;
+  User user;
+
+  setUserCallback(user) {
+    setState(() {
+      this.user = user;
+    });
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -30,25 +32,6 @@ class _MainPageState extends State<MainPage> {
         _appBarTitleText = 'League of Legends';
       else if (_selectedIndex == 2) _appBarTitleText = 'Favorites';
     });
-  }
-
-  Future<int> _readJson(String path) async {
-    // final json = DefaultAssetBundle.of(context).loadString(path);
-    print('sending request');
-    final uri = Uri.http('10.0.2.2:5000', '/v1/tft',
-        {'name': 'HornyModeKurumx', 'region': 'na1'});
-    print(uri);
-    final httpRequest = await _httpClient.getUrl(uri);
-    final httpResponse = await httpRequest.close();
-    print('got json' + HttpStatus.ok.toString());
-    final responseBody = await httpResponse.transform(utf8.decoder).join();
-    final jsonBody = json.decode(responseBody);
-    final summonerInfoMap = Map<String, dynamic>.from(await jsonBody);
-    final summonerInfo = SummonerInfo.fromJson(summonerInfoMap);
-    setState(() {
-      _summonerInfo = summonerInfo;
-    });
-    return 1;
   }
 
   @override
@@ -63,7 +46,13 @@ class _MainPageState extends State<MainPage> {
       fontFamily: 'Raleway',
     );
     List<Widget> _widgetOptions = <Widget>[
-      LoginPage(width: width, height: height),
+      user == null
+          ? LoginPage(
+              width: width,
+              height: height,
+              mainPageUserCallback: setUserCallback,
+            )
+          : Text('is logged to ' + user.firebaseUser.displayName),
       SearchPage(
         searchColor,
         width: width,

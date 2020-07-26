@@ -4,19 +4,25 @@ import 'package:unnamed_app_project/objects/user.dart';
 class LoginPage extends StatefulWidget {
   final double width;
   final double height;
-  const LoginPage({this.width = 346, this.height = 50});
+  final Function mainPageUserCallback;
+  const LoginPage(
+      {this.width = 346, this.height = 50, this.mainPageUserCallback});
   @override
   _LoginPageState createState() => _LoginPageState(
-        width: width,
-        height: height,
-      );
+      width: width, height: height, mainPageUserCallback: mainPageUserCallback);
 }
 
 class _LoginPageState extends State<LoginPage> {
   final double width;
   final double height;
+  final Function mainPageUserCallback;
   bool _loggedIn = false, _buttonPressed = false, _completedFuture = false;
   User user;
+
+  _LoginPageState(
+      {this.width = 346,
+      this.height = 50,
+      @required this.mainPageUserCallback});
 
   Future<int> _handleSignIn() async {
     if (_completedFuture) return 1;
@@ -37,15 +43,12 @@ class _LoginPageState extends State<LoginPage> {
         user = tempUser;
         _completedFuture = true;
         _loggedIn = true;
+        mainPageUserCallback(user);
       });
       return true;
     } else
       return false;
   }
-
-  Future<void> storeGoogleAccountTokens(
-      String idToken, String accessToken) async {}
-  _LoginPageState({this.width = 346, this.height = 50});
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +126,7 @@ class _LoginPageState extends State<LoginPage> {
           Widget _displayedWidget;
           if (snapshot.hasData) {
             print(user.firebaseUser);
+            mainPageUserCallback(user);
             _displayedWidget =
                 Text("You are logged in to " + user.firebaseUser.displayName);
             return _displayedWidget;

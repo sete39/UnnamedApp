@@ -18,6 +18,7 @@ class SummonerInfo {
   final List<dynamic> summonerRankLosses;
   final List<dynamic> summonerRankedWinRate;
   final List<dynamic> summonerRankWins;
+
   const SummonerInfo(
       {@required this.summonerName,
       this.profileIconURL,
