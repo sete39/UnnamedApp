@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert' show json, utf8, jsonDecode;
-import 'dart:io';
+import 'package:unnamed_app_project/objects/user.dart';
 
 import 'package:unnamed_app_project/search_page/summoner_page.dart';
 
@@ -13,16 +12,18 @@ class SearchPage extends StatefulWidget {
   final TextStyle textStyle;
   final String hintText;
   final List<String> serverList;
+  final User user;
   const SearchPage(this.color,
       {this.width = 346,
       this.height = 50,
       this.radius = 10,
+      @required this.user,
       @required this.hintText,
       @required this.serverList,
       @required this.textStyle});
 
   _SearchPageState createState() => _SearchPageState(
-      color, width, height, radius, textStyle, hintText, serverList);
+      color, width, height, radius, textStyle, hintText, serverList, user);
 }
 
 class _SearchPageState extends State<SearchPage> {
@@ -33,8 +34,9 @@ class _SearchPageState extends State<SearchPage> {
   final TextStyle textStyle;
   final String hintText;
   final List<String> serverList;
+  final User user;
   _SearchPageState(this.color, this.width, this.height, this.radius,
-      this.textStyle, this.hintText, this.serverList);
+      this.textStyle, this.hintText, this.serverList, this.user);
 
   String dropdownValue = 'EUW';
 
@@ -63,11 +65,13 @@ class _SearchPageState extends State<SearchPage> {
                 cursorColor: Colors.white,
                 style: textStyle,
                 onFieldSubmitted: (String summonerName) {
+                  print(user);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                        builder: (context) =>
-                            SummonerPage(summonerName, dropdownValue)),
+                      builder: (context) =>
+                          SummonerPage(summonerName, dropdownValue, user),
+                    ),
                   );
                 }, // fix when done with backend
                 decoration: InputDecoration.collapsed(

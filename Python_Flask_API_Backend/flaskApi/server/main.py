@@ -4,7 +4,7 @@ from riotwatcher import LolWatcher, TftWatcher, ApiError
 import flask_limiter
 app = flask.Flask(__name__)
 #app.config['DEBUG'] = True
-RIOTAPIKEY = 'RGAPI-d3048759-e081-4773-93cd-1dc63e2542bf'
+RIOTAPIKEY = 'RGAPI-de41f97c-f059-4462-a1df-a15f2165a33c'
 lol_watcher = LolWatcher(RIOTAPIKEY)
 tft_watcher = TftWatcher(RIOTAPIKEY)
 initialServerMap = {
@@ -93,29 +93,33 @@ def getTftMatches(region, summonerMatchesID):
     matchList = []
     for matchID in summonerMatchesID: 
         match = tft_watcher.match.by_id(serverMap[region], matchID)
-        matchList.append( match)
+        matchList.append(match)
     return matchList
 
 @app.route('/v1/tft')
 def api_tft_stats():
-    if all(x in ['name', 'region'] for x in flask.request.args):
+    if all(x in ['name', 'region', 'matches'] for x in flask.request.args):
         name = flask.request.args['name']
         region = flask.request.args['region']
+        matches = int(flask.request.args['matches'])
     else:
         return "Error: no name field provided. Please specify a name."
     print('processing request')
     region = initialServerMap[region]
     summoner = tft_watcher.summoner.by_name(region, name)
     summonerRankedInfo = tft_watcher.league.by_summoner(region, summoner['id'])
-    summonerMatchesID = tft_watcher.match.by_puuid(serverMap[region], summoner['puuid'])
-    matchList = getTftMatches(region, summonerMatchesID)
-    for i, match in enumerate(matchList):
-        for j, participant in enumerate(match['info']['participants']):
-            matchList[i]['info']['participant' + str(j)] = participant
-        matchList[i]['info'].pop('participants')
-        matchList[i]['metadata'].update(matchList[i]['info'])
-        matchList[i].pop('info')
-    summoner = getTftPast20GamesWinRates(summoner, matchList)
+    matchList = []
+    print(matches)
+    if (matches == 1):
+        summonerMatchesID = tft_watcher.match.by_puuid(serverMap[region], summoner['puuid'])
+        matchList = getTftMatches(region, summonerMatchesID)
+        for i, match in enumerate(matchList):
+            for j, participant in enumerate(match['info']['participants']):
+                matchList[i]['info']['participant' + str(j)] = participant
+            matchList[i]['info'].pop('participants')
+            matchList[i]['metadata'].update(matchList[i]['info'])
+            matchList[i].pop('info')
+        summoner = getTftPast20GamesWinRates(summoner, matchList)
     summoner = changeSummonerInfo(summoner, summonerRankedInfo)
     combinedDict = { # combining the match list and the summoner info into one dictionary
         'matchList': matchList,

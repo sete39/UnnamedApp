@@ -1,49 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:unnamed_app_project/objects/user.dart';
 
 class LoginPage extends StatefulWidget {
   final double width;
   final double height;
-  final Function mainPageUserCallback;
-  const LoginPage(
-      {this.width = 346, this.height = 50, this.mainPageUserCallback});
+  const LoginPage({this.width = 346, this.height = 50});
   @override
-  _LoginPageState createState() => _LoginPageState(
-      width: width, height: height, mainPageUserCallback: mainPageUserCallback);
+  _LoginPageState createState() =>
+      _LoginPageState(width: width, height: height);
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _LoginPageState extends State<LoginPage> with ChangeNotifier {
   final double width;
   final double height;
-  final Function mainPageUserCallback;
   bool _loggedIn = false, _buttonPressed = false, _completedFuture = false;
-  User user;
 
-  _LoginPageState(
-      {this.width = 346,
-      this.height = 50,
-      @required this.mainPageUserCallback});
+  _LoginPageState({
+    this.width = 346,
+    this.height = 50,
+  });
 
-  Future<int> _handleSignIn() async {
+  Future<int> _handleSignIn(User user) async {
     if (_completedFuture) return 1;
-    final tempUser = await User.handleGoogleSignIn();
+    final checkSuccess = await user.handleGoogleSignIn();
     setState(() {
-      user = tempUser;
       _completedFuture = true;
       _loggedIn = true;
     });
-    return 1;
+    return checkSuccess;
   }
 
-  Future<bool> _checkIfLoggedIn() async {
+  Future<bool> _checkIfLoggedIn(User user) async {
     if (_completedFuture || _loggedIn) return true;
-    final tempUser = await User.checkIfLoggedIn();
-    if (tempUser != null) {
+    final checkLogin = await user.checkIfLoggedIn();
+    if (checkLogin == 1) {
       setState(() {
-        user = tempUser;
         _completedFuture = true;
         _loggedIn = true;
-        mainPageUserCallback(user);
       });
       return true;
     } else
@@ -52,7 +46,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    Future checkingLogin = _checkIfLoggedIn();
+    User user = Provider.of<User>(context);
+    Future<bool> checkingLogin = _checkIfLoggedIn(user);
     final googleSignInButton = RaisedButton.icon(
       icon: Container(
         child: Image.asset("assets/images/google_logo.png"),
@@ -121,12 +116,11 @@ class _LoginPageState extends State<LoginPage> {
 
     if (_buttonPressed) {
       final futureBuilder = FutureBuilder(
-        future: _handleSignIn(),
+        future: _handleSignIn(user),
         builder: (context, snapshot) {
           Widget _displayedWidget;
           if (snapshot.hasData) {
             print(user.firebaseUser);
-            mainPageUserCallback(user);
             _displayedWidget =
                 Text("You are logged in to " + user.firebaseUser.displayName);
             return _displayedWidget;

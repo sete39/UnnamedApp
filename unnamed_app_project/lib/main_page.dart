@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:unnamed_app_project/account_view/logged_in_page.dart';
 import 'package:unnamed_app_project/objects/user.dart';
 import 'package:unnamed_app_project/account_view/login_page.dart';
 import 'package:unnamed_app_project/search_page/search_page.dart';
@@ -15,13 +17,6 @@ class _MainPageState extends State<MainPage> {
   List<String> _serverList = ['EUW', 'EUNE', 'NA'];
   int _selectedIndex = 0;
   String _appBarTitleText = 'Accounts';
-  User user;
-
-  setUserCallback(user) {
-    setState(() {
-      this.user = user;
-    });
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -36,6 +31,7 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
+    final User user = Provider.of<User>(context);
     final searchColor = Theme.of(context).primaryColor;
     const double width = 346.0;
     const double height = 50.0;
@@ -45,24 +41,32 @@ class _MainPageState extends State<MainPage> {
       color: Color.fromRGBO(255, 255, 255, 1),
       fontFamily: 'Raleway',
     );
-    List<Widget> _widgetOptions = <Widget>[
-      user == null
-          ? LoginPage(
-              width: width,
-              height: height,
-              mainPageUserCallback: setUserCallback,
-            )
-          : Text('is logged to ' + user.firebaseUser.displayName),
-      SearchPage(
-        searchColor,
-        width: width,
-        height: height,
-        textStyle: searchPageTextStyle,
-        hintText: _hintText,
-        serverList: _serverList,
-      ),
-      Text('test'),
-    ];
+    final _widgetOptions = IndexedStack(
+      alignment: Alignment.center,
+      index: _selectedIndex,
+      children: <Widget>[
+        !user.signedIn
+            ? LoginPage(
+                width: width,
+                height: height,
+              )
+            : LoggedInPage(),
+        SearchPage(
+          searchColor,
+          width: width,
+          height: height,
+          textStyle: searchPageTextStyle,
+          hintText: _hintText,
+          serverList: _serverList,
+          user: user,
+        ),
+        Container(
+            child: Text(
+          'test',
+          textAlign: TextAlign.center,
+        )),
+      ],
+    );
 
     final navBar = BottomNavigationBar(
       items: const <BottomNavigationBarItem>[
@@ -87,7 +91,12 @@ class _MainPageState extends State<MainPage> {
     );
     return Scaffold(
       appBar: AppBar(
-        leading: Icon(Icons.menu),
+        leading: IconButton(
+          icon: Icon(Icons.menu),
+          onPressed: () {
+            user.signOut();
+          },
+        ),
         title: Text(
           _appBarTitleText,
           style: TextStyle(fontFamily: 'Raleway'),
@@ -97,7 +106,7 @@ class _MainPageState extends State<MainPage> {
       ),
       bottomNavigationBar: navBar,
       body: Center(
-        child: _widgetOptions.elementAt(_selectedIndex),
+        child: _widgetOptions,
       ),
     );
   }

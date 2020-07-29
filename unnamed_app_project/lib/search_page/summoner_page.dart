@@ -2,35 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:unnamed_app_project/objects/summoner_info.dart';
 import 'dart:convert' show json, utf8;
 import 'dart:io';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:unnamed_app_project/objects/user.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:unnamed_app_project/search_page/summoner_info_widget.dart';
 
 class SummonerPage extends StatefulWidget {
   final String region;
   final String summonerName;
-
-  const SummonerPage(this.summonerName, this.region);
+  final User user;
+  const SummonerPage(this.summonerName, this.region, this.user);
   @override
-  _SummonerPageState createState() => _SummonerPageState(summonerName, region);
+  _SummonerPageState createState() =>
+      _SummonerPageState(summonerName, region, user);
 }
 
 class _SummonerPageState extends State<SummonerPage> {
   final String region;
   final String summonerName;
+  final User user;
   final _httpClient = HttpClient();
+  final firestore = Firestore.instance;
   bool _completedFuture = false;
   SummonerInfo _summonerInfo;
-  _SummonerPageState(this.summonerName, this.region);
+  _SummonerPageState(this.summonerName, this.region, this.user);
 
+  // sends a requrest to proxy api to get info of the user's tft accouunt
   Future<int> _readJson(String summonerName, String region) async {
-    // final json = DefaultAssetBundle.of(context).loadString(path);
     if (_completedFuture) {
       return 1;
     }
     try {
       print('sending request');
       final uri = Uri.http('unnamedappproject-284416.oa.r.appspot.com',
-          '/v1/tft', {'name': summonerName, 'region': region});
+          '/v1/tft', {'name': summonerName, 'region': region, 'matches': '1'});
       print(uri);
       final httpRequest = await _httpClient.getUrl(uri);
       final httpResponse = await httpRequest.close();
@@ -48,6 +53,35 @@ class _SummonerPageState extends State<SummonerPage> {
       print('$e');
       return -1;
     }
+  }
+
+  Future<void> _addToServer() async {
+    if (user == null) {
+      Fluttertoast.showToast(
+        msg:
+            'Please login first by going back and clicking the first button on the left',
+        backgroundColor: Colors.grey[400],
+        textColor: Colors.black87,
+      );
+      return;
+    }
+    print('Adding user ' + user.firebaseUser.uid);
+    Fluttertoast.showToast(
+      msg: 'Adding account',
+      backgroundColor: Colors.grey[400],
+      textColor: Colors.black87,
+    );
+    final accountInfoMap = [
+      {
+        'gameid': summonerName,
+        'gameName': 'Teamfight Tactics',
+        'region': region,
+      }
+    ];
+    await firestore
+        .collection('gameaccounts')
+        .document(user.firebaseUser.uid)
+        .updateData({'accounts': FieldValue.arrayUnion(accountInfoMap)});
   }
 
   @override
@@ -86,6 +120,15 @@ class _SummonerPageState extends State<SummonerPage> {
             leading: IconButton(
                 icon: Icon(Icons.arrow_back),
                 onPressed: () => Navigator.of(context).pop()),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.add),
+                iconSize: 30,
+                onPressed: () {
+                  _addToServer();
+                },
+              ),
+            ],
             title: Text(
               summonerName,
               style: TextStyle(fontFamily: 'Raleway', color: Colors.white),
