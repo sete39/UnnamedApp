@@ -62,7 +62,25 @@ class _LoggedInPageState extends State<LoggedInPage> {
     final User user = Provider.of(context);
     //TODO: Use below future in FutureBuilder to keep a
     // CircularProgressIndicator until the future is complete
-    final future = _retrieveAccountsFromFirestore(user);
-    return Container(child: Text(user.firebaseUser.displayName));
+    return FutureBuilder(
+        future: _retrieveAccountsFromFirestore(user),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) // checks if the future is done
+          if (snapshot.data == 1) {
+            // checks if future finished with no error
+            if (gameAccountWidgets.isEmpty) // if there are no accounts saved
+              return Text(
+                  'No accounts have been added yet. To add an account, search' +
+                      ' for an account with the middle button and click the add ' +
+                      'button on the top right.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: 'Raleway',
+                    color: Colors.black54,
+                  ));
+            else // if data was found
+              return Container(color: Colors.black);
+          }
+        });
   }
 }

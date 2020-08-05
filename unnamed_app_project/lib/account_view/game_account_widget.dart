@@ -7,6 +7,7 @@ class GameAccountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: create this widget. Assume GameAccount fields are not null
+
     return Container();
   }
 }
