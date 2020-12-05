@@ -26,9 +26,9 @@ if __name__ == '__main__':
     while True:
         if loop:
             print('in loop')
-            ms.press(mouse.Button.left)
+            ms.press(mouse.Button.right)
             #time.sleep(0.0100)
-            ms.release(mouse.Button.left)
+            ms.release(mouse.Button.right)
             #time.sleep(1)
         # print('out of loop')
         time.sleep(0.01)

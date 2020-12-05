@@ -4,7 +4,7 @@ from riotwatcher import LolWatcher, TftWatcher, ApiError
 import flask_limiter
 app = flask.Flask(__name__)
 #app.config['DEBUG'] = True
-RIOTAPIKEY = 'RGAPI-de41f97c-f059-4462-a1df-a15f2165a33c'
+RIOTAPIKEY = 'RGAPI-4b915718-3b62-437f-8465-c92ebda115fd'
 lol_watcher = LolWatcher(RIOTAPIKEY)
 tft_watcher = TftWatcher(RIOTAPIKEY)
 initialServerMap = {
