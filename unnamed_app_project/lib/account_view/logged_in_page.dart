@@ -80,7 +80,8 @@ class _LoggedInPageState extends State<LoggedInPage> {
                   ));
             else // if data was found
               return Container(color: Colors.black);
-          }
+          } else
+            return Container(child: CircularProgressIndicator());
         });
   }
 }
